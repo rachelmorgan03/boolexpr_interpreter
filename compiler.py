@@ -16,27 +16,28 @@ def compile_expr(expr: BoolExpr, env: dict = None) -> None:
         repl.translated_string = "true" if expr.value else "false"
 
     elif isinstance(expr, Variable):
-        translated_string = expr.name
         if expr.name not in boolexpr1.true_vars and expr.name not in boolexpr1.false_vars:
             if env and env.get(expr.name) is True:
-                boolexpr1.true_vars.append(expr.name)
+                boolexpr1.true_vars[expr.name] = True
             elif env and env.get(expr.name) is False:
-                boolexpr1.false_vars.append(expr.name)
+                boolexpr1.false_vars[expr.name] = False
+        repl.translated_string = expr.name
+
     elif isinstance(expr, Operator):
         # Handle operators: AND, OR, NOT
         if expr.operator == '~':
             operand = compile_expr(expr.operands[0], env)
-            repl.translated_string = f"!({repl.translated_string})"
+            repl.translated_string = f"! {repl.translated_string}"
         elif expr.operator == '&':
-            left = compile_expr(expr.operands[0], env)
+            compile_expr(expr.operands[0], env)
             left_translated = repl.translated_string
-            right = compile_expr(expr.operands[1], env)
-            repl.translated_string = f"({left_translated} && {repl.translated_string})"
+            compile_expr(expr.operands[1], env)
+            repl.translated_string = f"{left_translated} && {repl.translated_string}"
         elif expr.operator == '|':
-            left = compile_expr(expr.operands[0], env)
+            compile_expr(expr.operands[0], env)
             left_translated = repl.translated_string
-            right = compile_expr(expr.operands[1], env)
-            repl.translated_string = f"({left_translated} || {repl.translated_string})"
+            compile_expr(expr.operands[1], env)
+            repl.translated_string = f"{left_translated} || {repl.translated_string}"
     else:
         raise ValueError(f"Unknown expression type: {expr}")
 

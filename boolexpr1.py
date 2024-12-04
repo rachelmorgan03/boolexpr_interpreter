@@ -81,7 +81,6 @@ def p_sentence(p):
 def p_declarations_empty(p):
     '''declarations : LBRACK RBRACK'''
     global true_vars
-    true_vars.clear()  # No variables are declared
     p[0] = []
 
 def p_declarations_varlist(p):
@@ -121,14 +120,8 @@ def p_expr_or(p):
 def p_expr_var(p):
     '''expr : VAR'''
     global true_vars, false_vars
-    var_name = p[1]
-    if var_name in true_vars:
-        p[0] = Literal(True)
-    else:
-        false_vars[var_name] = False
-        p[0] = Literal(False)
+    p[0] = Variable(p[1])
         
-
 # Error rule for syntax errors
 def p_error(p):
     if p:
